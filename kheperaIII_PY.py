@@ -2,67 +2,72 @@
 from controller import Robot, Motor, DistanceSensor
 
 TIME_STEP = 32
-MAX_SPEED = 12*0.75
+MAX_SPEED = 0.75*12
 
 
 #Listas de equipamentos do robo - CADA DEVICE DEVE TER UMA INSTANCE VINCULADA
 #Devices sao os equipamentos dentro do robo
 DEVICES = ['left wheel motor', 'right wheel motor', 'ds10', 'ds9', 'us1', 'us2', 'us3']
-#Instances são os nomes das instancias de cada device EM ORDEM
+#Instances são as instancias de cada device EM ORDEM
 INSTANCES = ['left_wheel', 'right_wheel', 'left_infra_red', 'right_infra_red', 'ultrassound_right', 'ultrassound_front', 'ultrassound_left']
 
 
-#abordagem por maquina de estados
+
 class stateMachine:
     def __init__(self, robot):
         self.robot = robot
         self.state = 'DEFAULT'
         
-        #faz um dicionario com as instancias e devices
-        self.devices = dict(zip(INSTANCES, DEVICES))
-        for x in self.devices.keys():
-            if 'wheel' in x: #encontrando uma variavel de motor
-                vars()[x] = self.robot.getDevice(self.devices[x]) #cria a variavel com o nome colocado na lista INSTANCES
-                self.devices[x] = vars()[x]
+        self.devices = dict()
+        for dev, inst in zip(DEVICES, INSTANCES):
+            if 'wheel' in inst:
+                self.devices[inst] = self.robot.getDevice(dev)
                 
-                self.devices[x].setPosition(float('inf')) #inicializa o motor
-                self.devices[x].setVelocity(0.0)
+                self.devices[inst].setPosition(float('inf'))
+                self.devices[inst].setVelocity(0.0)
                 
-            elif 'infra_red' in x or 'ultrassound' in x: #faz o mesmo com sensores
-                vars()[x] = self.robot.getDevice(self.devices[x])
-                self.devices[x] = vars()[x]
+            elif 'infra_red' in inst or 'ultrassound' in inst:
+                self.devices[inst] = self.robot.getDevice(dev)
+                print(f'Set up {inst}')
                 
-                self.devices[x].enable(TIME_STEP)
+                self.devices[inst].enable(TIME_STEP)
                 
                 
-    def process(self): #processamento dos estados
-        default = 'Error in Machine State' #mensagem de erro
+    def process(self):
+        default = 'Error in Machine State'
         
-        #"switch case" do python
         return getattr(self, 'case_' + str(self.state), lambda: default)()
         
-    def case_FORWARD(self): #andar para frente
+    def case_FORWARD(self):
         self.devices['left_wheel'].setVelocity(MAX_SPEED)
         self.devices['right_wheel'].setVelocity(MAX_SPEED)
 
-    def case_BACK(self): #andar para tras
+    def case_BACK(self):
         self.devices['left_wheel'].setVelocity(-MAX_SPEED)
         self.devices['right_wheel'].setVelocity(-MAX_SPEED)
         
-    def case_LEFT(self): #virar para a direita
+    def case_LEFT(self):
         self.devices['left_wheel'].setVelocity(-MAX_SPEED)
         self.devices['right_wheel'].setVelocity(MAX_SPEED)
         
-    def case_RIGHT(self): #virar para a esquerda
+    def case_RIGHT(self):
         self.devices['left_wheel'].setVelocity(MAX_SPEED)
         self.devices['right_wheel'].setVelocity(-MAX_SPEED)
+        
+    def case_FORWARD_RIGHT(self):
+        self.devices['left_wheel'].setVelocity(0.25*MAX_SPEED)
+        self.devices['right_wheel'].setVelocity(MAX_SPEED)
+        
+    def case_FORWARD_LEFT(self):
+        self.devices['left_wheel'].setVelocity(MAX_SPEED)
+        self.devices['right_wheel'].setVelocity(0.25*MAX_SPEED)
 
 
 
 
 if __name__ == '__main__':
     
-    robot = stateMachine(Robot()) #cria a maquina de estados
+    robot = stateMachine(Robot())
     """
     #Definindo os motores
     roda_esquerda = robot.getDevice("left wheel motor") #Motor esquerdo
@@ -98,7 +103,7 @@ if __name__ == '__main__':
     right = 0 
     left = 0
     
-    last_instruction = 0 #usado para organizar o tempo de execucao das instrucoes
+    last_instruction = 0
     
     
     ##-------------------------------------------------------##
@@ -111,21 +116,33 @@ if __name__ == '__main__':
         ultra_frente = robot.devices['ultrassound_front'].getValue()
         ultra_esquerda = robot.devices['ultrassound_left'].getValue()
           
+        print(f'ultra_esquerda: {ultra_esquerda}')
+        print(f'ultra_frente: {ultra_frente}')
+        print(f'ultra_direita: {ultra_direita}')
         
-        if infraL_value > 2000 or infraR_value > 2000: #batendo na linha, ele vira
+        
+        if ultra_esquerda > 500:
+            robot.state = 'FORWARD_LEFT'
+            print('Ultra esquerda')
+        elif ultra_direita > 500:
+            robot.state = 'FORWARD_RIGHT'
+            print('Ultra direita')
+        elif ultra_frente > 500:
+            robot.state = 'FORWARD'
+            print('Ultra frente')
+        elif infraL_value > 2000 and current_time - last_instruction > 0.5:
             last_instruction = current_time
-            robot.state = 'RIGHT' #atualiza o estado
-        elif current_time - last_instruction > 0.5: #se nao encontrou a linha em 500ms, segue pra frente
+            robot.state = 'RIGHT'
+        elif infraR_value > 2000 and current_time - last_instruction > 0.5:
+            last_instruction = current_time
+            robot.state = 'LEFT'
+        elif current_time - last_instruction > 0.5:
             robot.state = 'FORWARD'
         print(f'current_time - last_instruction: {current_time-last_instruction}')
         
         
-        
-        robot.process() #processa o estado
-        
-        
-        
-        #parte antiga do codigo
+        print(f'{robot.state}')
+        robot.process()
         """
         if turning != 1:
             if infraL_value > 2000 or infraR_value > 2000:  # verifica se os sensores estão na linha branca
