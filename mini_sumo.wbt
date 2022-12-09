@@ -7,8 +7,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.20965671649275008 0.22076019774678468 -0.9525276879546752 1.5678134232311352
-  position -0.24502254572756876 1.2452185617395957 0.7986009946440572
+  orientation -0.08150681751465481 0.7991593431354179 0.5955677820181344 0.33924334360385433
+  position -1.2689824987426488 -0.22216490179520096 0.5239232337659155
 }
 TexturedBackground {
 }
@@ -21,7 +21,7 @@ CircleArena {
     roughness 1
     metalness 0
   }
-  wallHeight 1e-05
+  wallHeight 1e-06
   wallAppearance PBRAppearance {
     roughness 1
     metalness 0
@@ -31,21 +31,135 @@ Robot {
   translation 0 0 0.07
   rotation 0 1 0 0
   children [
-    DistanceSensor {
-      translation 0.03 -0.05 -0.05
-      rotation 0 1 0 1.57
+    DEF GROUND_SENSOR_DS9 DistanceSensor {
+      translation 0.03 -0.06 0
+      rotation 0.7062223501084638 -0.04999984414532509 -0.7062223501084638 3.14103
+      children [
+        Group {
+          children [
+            Transform {
+              translation 0 -0.002 0
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0 0 1
+                    roughness 0.4
+                    metalness 0
+                  }
+                  geometry DEF SPHERE Sphere {
+                    radius 0.0014
+                  }
+                }
+              ]
+            }
+            Transform {
+              translation 0 0.002 0
+              children [
+                Shape {
+                  appearance DEF BLACK PBRAppearance {
+                    baseColor 0.101961 0.101961 0.101961
+                    roughness 0.45
+                    metalness 0
+                  }
+                  geometry USE SPHERE
+                }
+              ]
+            }
+            Transform {
+              translation -0.0025 0 0
+              children [
+                Shape {
+                  appearance USE BLACK
+                  geometry Box {
+                    size 0.006 0.01 0.005
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
       name "left line sensor"
+      model "Khepera III ground sensor"
+      lookupTable [
+        0 4000 0
+        0.0145 4000 0.01
+        0.0223 3816 0.05
+        0.0345 1855 0.1
+        0.0516 974 0.2
+        0.0774 474 0.2
+        0.1145 224 0.2
+        0.15 170 0.3
+        0.3 0 0.3
+      ]
       type "infra-red"
     }
-    DistanceSensor {
-      translation -0.03 -0.05 -0.05
-      rotation 0 1 0 1.57
+    DEF GROUND_SENSOR_DS9 DistanceSensor {
+      translation -0.03 -0.06 0
+      rotation 0.7062245514764216 -0.04993761892455883 -0.7062245514764216 3.14103
+      children [
+        Group {
+          children [
+            Transform {
+              translation 0 -0.002 0
+              children [
+                Shape {
+                  appearance PBRAppearance {
+                    baseColor 0 0 1
+                    roughness 0.4
+                    metalness 0
+                  }
+                  geometry DEF SPHERE Sphere {
+                    radius 0.0014
+                  }
+                }
+              ]
+            }
+            Transform {
+              translation 0 0.002 0
+              children [
+                Shape {
+                  appearance DEF BLACK PBRAppearance {
+                    baseColor 0.101961 0.101961 0.101961
+                    roughness 0.45
+                    metalness 0
+                  }
+                  geometry USE SPHERE
+                }
+              ]
+            }
+            Transform {
+              translation -0.0025 0 0
+              children [
+                Shape {
+                  appearance USE BLACK
+                  geometry Box {
+                    size 0.006 0.01 0.005
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
       name "right line sensor"
+      model "Khepera III ground sensor"
+      lookupTable [
+        0 4000 0
+        0.0145 4000 0.01
+        0.0223 3816 0.05
+        0.0345 1855 0.1
+        0.0516 974 0.2
+        0.0774 474 0.2
+        0.1145 224 0.2
+        0.15 170 0.3
+        0.3 0 0.3
+      ]
       type "infra-red"
     }
     DistanceSensor {
       translation -0.05 -0.05 0
-      rotation 0 0 1 -2.3562
+      rotation 0 -0.050494873471905545 -0.9987243201970483 2.3562
       name "forward right sensor"
       lookupTable [
         0 800 0
@@ -59,7 +173,7 @@ Robot {
     }
     DistanceSensor {
       translation 0.05 -0.05 0
-      rotation 0 0 1 -0.7854
+      rotation 0 0.050494873471905545 0.9987243201970483 -0.7854
       name "forward left sensor"
       lookupTable [
         0 800 0
@@ -73,7 +187,7 @@ Robot {
     }
     DistanceSensor {
       translation 0 -0.05 0
-      rotation 0 0 1 -1.57
+      rotation 0 0.050494873471905545 0.9987243201970483 -1.57
       name "front sensor"
       lookupTable [
         0 800 0
@@ -126,7 +240,7 @@ Robot {
       ]
       endPoint Solid {
         translation 0.05 0.025 -0.03
-        rotation -0.5410925142588366 -0.644130196334805 -0.5406617992633994 4.286793317246558
+        rotation -0.5410925142588363 -0.644130196334805 -0.5406617992633995 4.286793317246558
         children [
           DEF wheel Shape {
             appearance PBRAppearance {
@@ -160,7 +274,7 @@ Robot {
       ]
       endPoint Solid {
         translation -0.05 0.025 -0.03
-        rotation 0.3233438885726643 -0.8894176976481603 0.3230865036378866 4.596258913499741
+        rotation 0.3233438885726643 -0.8894176976481603 0.32308650363788666 4.596258913499741
         children [
           DEF wheel Shape {
             appearance PBRAppearance {
@@ -199,7 +313,7 @@ Robot {
   controller "mini_sumo_robo_generico"
 }
 Solid {
-  translation 0.28 -0.16 0.14
+  translation -0.19 1.46 0.14
   children [
     Shape {
       geometry Box {
