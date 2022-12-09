@@ -71,7 +71,7 @@ class stateMachine:
 
 
 angular_speed = MAX_SPEED
-T = 2*pi/angular_speed
+T = 0.5
 
 estrategia = 0
 c = 0
@@ -79,7 +79,7 @@ last_instruction = 0
 if __name__ == '__main__':
  
     robot = stateMachine(Robot())
-    robot.state = 'FORWARD_RIGHT'
+    robot.state = 'FORWARD'
          
     while robot.robot.step(TIME_STEP) != -1: #Insira dentro desse laço while o código que rodará continuamente (estilo loop do arduino)
         
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         left_presence_value = robot.devices['left_sensor'].getValue()
         forward_left_presence_value = robot.devices['forward_left_sensor'].getValue()
         forward_right_presence_value = robot.devices['forward_right_sensor'].getValue()
-        robot.state = 'LEFT'
+ 
         # Movimentação padrão
         if estrategia == 0:
             if left_presence_value > 500:
@@ -104,10 +104,10 @@ if __name__ == '__main__':
                 robot.state = 'FORWARD_LEFT'
             elif front_presence_value > 500:
                 robot.state = 'FORWARD'
-            elif left_line_value > 2000 and current_time - last_instruction > T:
+            elif left_line_value > 200 and current_time - last_instruction > T:
                 last_instruction = current_time
                 robot.state = 'RIGHT'
-            elif right_line_value > 2000 and current_time - last_instruction > T:
+            elif right_line_value > 200 and current_time - last_instruction > T:
                 last_instruction = current_time
                 robot.state = 'LEFT'
             elif current_time - last_instruction > T:
@@ -173,5 +173,5 @@ if __name__ == '__main__':
         
         
         
-        print(f'infra left: {left_line_value}\ninfra right: {right_line_value}\nultra left: {left_presence_value}\nultra direita: {right_presence_value}\nultra frente: {front_presence_value}')
+        print(f'infra left: {left_line_value}\ninfra right: {right_line_value}\nultra left: {left_presence_value}\nultra direita: {right_presence_value}\nultra frente: {front_presence_value}\nstate: {robot.state}\ntime since instruction: {current_time - last_instruction}')
         robot.process() #processa o estado
